@@ -5,6 +5,8 @@ import { env } from "./config/env.js"
 import { errorHandler } from "./middlewares/errorHandler.js";
 import { AppError } from "./utils/AppError.js";
 
+import authRoutes from "./routes/auth.routes.js";
+
 const app=express();
 
 app.use(cors())
@@ -16,8 +18,10 @@ app.get("/health",(req,res)=>{
     });
 });
 
-app.get("/error",(req,res,next)=>{
-    next(new AppError("this is custom error",400));
+app.use("/api/v1/auth",authRoutes);
+
+app.use((req,res,next)=>{
+    next(new AppError(`Route ${req.originalUrl} not found`,404));
 })
 
 app.use(errorHandler)
