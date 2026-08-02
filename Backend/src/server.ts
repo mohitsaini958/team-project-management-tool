@@ -6,6 +6,9 @@ import { errorHandler } from "./middlewares/errorHandler.js";
 import { AppError } from "./utils/AppError.js";
 
 import authRoutes from "./routes/auth.routes.js";
+import projectRoutes from "./routes/project.routes.js"
+import workspaceRoutes from "./routes/workspace.routes.js"
+import issueRoutes from "./routes/issue.routes.js"
 
 const app=express();
 
@@ -18,7 +21,10 @@ app.get("/health",(req,res)=>{
     });
 });
 
-app.use("/api/v1/auth",authRoutes);
+app.use("/api/v1/auth", authRoutes);
+app.use("/api/v1/workspaces", workspaceRoutes);
+app.use("/api/v1/projects", projectRoutes);
+app.use("/api/v1/issues", issueRoutes);
 
 app.use((req,res,next)=>{
     next(new AppError(`Route ${req.originalUrl} not found`,404));

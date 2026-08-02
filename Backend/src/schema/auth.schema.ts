@@ -17,14 +17,10 @@ export const registerSchema = z.object({
     .max(100, "Password must not exceed 100 characters")
     .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
     .regex(/[a-z]/, "Password must contain at least one lowercase letter")
-    .regex(/[0-9]/, "Password must contain at least one number")
-    .regex(
-      /[@$!%*?&#^()_\-+=<>]/,
-      "Password must contain at least one special character"
-    ),
+    .regex(/[0-9]/, "Password must contain at least one number"),
 });
 
-export const loginSchema = z.object({
+export const loginSchema = z.object({        
   email: z
     .email("Invalid email address")
     .transform((email) => email.toLowerCase()),
