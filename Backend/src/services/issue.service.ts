@@ -129,3 +129,14 @@ export const deleteIssue=async(issueId:string,userId:string)=>{
   };
 };
 
+export const getProjectIssues = async (projectId: string, userId: string) => {
+  const project = await prisma.project.findUnique({ where: { id: projectId } });
+  if (!project) throw new AppError("Project not found", 404);
+
+  await requireWorkspaceRole(project.workspaceId, userId, ["OWNER", "MEMBER", "VIEWER"]);
+
+  return prisma.issue.findMany({
+    where: { projectId },
+    orderBy: [{ status: "asc" }, { order: "asc" }],
+  });
+};
