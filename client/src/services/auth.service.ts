@@ -12,7 +12,6 @@ export const registerUser = async (data: {
   password: string;
 }): Promise<AuthResponse> => {
   const res = await axios.post('/auth/register', data);
-  console.log(res);
   return res.data.data;
 };
 

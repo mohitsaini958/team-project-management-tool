@@ -4,6 +4,8 @@ import { AuthProvider } from './context/AuthContext';
 import { useAuth } from './hooks/useAuth';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
+import DashboardPage from './pages/DashboardPage';
+import BoardPage from './pages/BoardPage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -36,26 +38,11 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
-// Temporary placeholder — replace with the real DashboardPage once Phase 3 is built.
-// This exists so the redirect after login/register has somewhere valid to land.
-function DashboardPlaceholder() {
-  const { user, logout } = useAuth();
-  return (
-    <div className="min-h-screen bg-[#0c0f14] text-[#e8eaef] flex flex-col items-center justify-center gap-4">
-      <p className="text-sm text-[#8b93a3]">Signed in as {user?.email}</p>
-      <button
-        onClick={logout}
-        className="text-sm text-[#4ddac2] font-semibold"
-      >
-        Log out
-      </button>
-    </div>
-  );
-}
-
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <BrowserRouter>
           <Routes>
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
@@ -81,7 +68,16 @@ export default function App() {
               path="/dashboard"
               element={
                 <ProtectedRoute>
-                  <DashboardPlaceholder />
+                  <DashboardPage />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/workspace/:slug/project/:projectId"
+              element={
+                <ProtectedRoute>
+                  <BoardPage />
                 </ProtectedRoute>
               }
             />
@@ -90,6 +86,8 @@ export default function App() {
                 which itself redirects to /login if not authenticated */}
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>
+        </BrowserRouter>
+      </AuthProvider>
     </QueryClientProvider>
   );
 }
