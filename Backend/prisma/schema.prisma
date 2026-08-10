@@ -103,6 +103,8 @@ model User {
 
   reportedIssues     Issue[]            @relation("ReportedIssues")
   assignedIssues     Issue[]            @relation("AssignedIssues")
+  activityLogs       ActivityLog[]
+  comments Comment[] @relation("CommentAuthor")
 }
 
 model Workspace {
@@ -148,6 +150,7 @@ model Project {
   updatedAt   DateTime    @updatedAt
 
   issues      Issue[]
+  activityLogs ActivityLog[]
 }
 
 model Issue {
@@ -172,4 +175,42 @@ model Issue {
 
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
+  activityLogs ActivityLog[]
+  comments Comment[]
+}
+
+model ActivityLog {
+  id         String         @id @default(cuid())
+
+  action     ActivityAction
+
+  message    String
+
+  userId     String
+  user       User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  issueId    String?
+  issue      Issue?         @relation(fields: [issueId], references: [id], onDelete: Cascade)
+
+  projectId  String?
+  project    Project?       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  createdAt  DateTime       @default(now())
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+
+  content   String
+
+  issueId   String
+  issue     Issue    @relation(fields: [issueId], references: [id], onDelete: Cascade)
+
+  authorId  String
+  author User @relation("CommentAuthor", fields: [authorId], references: [id])
+
+  deletedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
