@@ -49,3 +49,44 @@ export interface Issue {
   assignee?: User | null;
   reporter?: User;
 }
+
+export interface Comment {
+  id: string;
+  content: string;
+  issueId: string;
+  authorId: string;
+  deletedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+  author: Pick<User, 'id' | 'name' | 'avatarUrl'>;
+}
+
+export type ActivityAction =
+  | 'PROJECT_CREATED'
+  | 'PROJECT_UPDATED'
+  | 'PROJECT_DELETED'
+  | 'MEMBER_INVITED'
+  | 'MEMBER_REMOVED'
+  | 'ISSUE_CREATED'
+  | 'ISSUE_UPDATED'
+  | 'ISSUE_DELETED'
+  | 'ISSUE_ASSIGNED'
+  | 'ISSUE_STATUS_CHANGED'
+  | 'ISSUE_PRIORITY_CHANGED'
+  | 'COMMENT_ADDED';
+
+export interface ActivityLogEntry {
+  id: string;
+  action: ActivityAction;
+  message: string;
+  userId: string;
+  issueId: string | null;
+  projectId: string | null;
+  createdAt: string;
+  user: Pick<User, 'id' | 'name' | 'avatarUrl'>;
+}
+
+export interface IssueDetail extends Issue {
+  comments: Comment[];
+  activityLogs: ActivityLogEntry[];
+}

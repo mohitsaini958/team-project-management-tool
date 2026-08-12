@@ -9,6 +9,7 @@ import authRoutes from "./routes/auth.routes.js";
 import projectRoutes from "./routes/project.routes.js"
 import workspaceRoutes from "./routes/workspace.routes.js"
 import issueRoutes from "./routes/issue.routes.js"
+import commentRoutes from "./routes/comment.routes.js"
 
 const app=express();
 
@@ -25,6 +26,7 @@ app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/workspaces", workspaceRoutes);
 app.use("/api/v1/projects", projectRoutes);
 app.use("/api/v1/issues", issueRoutes);
+app.use("/api/v1/comments",commentRoutes);
 
 app.use((req,res,next)=>{
     next(new AppError(`Route ${req.originalUrl} not found`,404));

@@ -53,7 +53,7 @@ export const createIssue = async (userId: string, data: CreateIssueInput) => {
 
   await logActivity({
     action: "ISSUE_CREATED",
-    message: `Created issue "${issue.title}`,
+    message: `Created issue "${issue.title}"`,
     userId,
     issueId: issue.id,
     projectId: issue.projectId,
