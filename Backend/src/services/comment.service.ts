@@ -3,6 +3,7 @@ import type { CreateCommentInput } from "../schema/comment.schema.js";
 import { AppError } from "../utils/AppError.js";
 import { requireWorkspaceRole } from "../utils/permissions.js";
 import { logActivity } from "./activity.service.js";
+import { createNotification } from "./notification.service.js";
 
 export const createComment=async(issueId:string,userId:string,data:CreateCommentInput)=>{
     const issue=await prisma.issue.findUnique({
@@ -36,6 +37,27 @@ export const createComment=async(issueId:string,userId:string,data:CreateComment
         issueId,
         projectId:issue.projectId,
     });
+
+    const recipients=new Set<string>();
+
+    if(issue.reporterId && issue.reporterId!==userId){
+        recipients.add(issue.reporterId);
+    }
+
+    if(issue.assigneeId && issue.assigneeId!==userId){
+        recipients.add(issue.assigneeId);
+    }
+
+    await Promise.all(
+        [...recipients].map((recipientId)=>
+            createNotification({
+                userId:recipientId,
+                type:"COMMENT_ADDED",
+                message: `${comment.author.name} commented on "${issue.title}"`,
+                issueId:issue.id,
+            })
+        )
+    );
 
     return comment;
 };

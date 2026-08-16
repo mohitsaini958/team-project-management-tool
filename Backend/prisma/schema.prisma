@@ -105,6 +105,7 @@ model User {
   assignedIssues     Issue[]            @relation("AssignedIssues")
   activityLogs       ActivityLog[]
   comments Comment[] @relation("CommentAuthor")
+  notifications Notification[]
 }
 
 model Workspace {
@@ -177,6 +178,7 @@ model Issue {
   updatedAt     DateTime      @updatedAt
   activityLogs ActivityLog[]
   comments Comment[]
+  notifications Notification[]
 }
 
 model ActivityLog {
@@ -213,4 +215,20 @@ model Comment {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+
+  type      NotificationType
+  message   String
+  readAt    DateTime?
+
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  issueId   String?
+  issue     Issue?           @relation(fields: [issueId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime         @default(now())
 }

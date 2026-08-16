@@ -1,7 +1,8 @@
 import { prisma } from "../config/prisma.js";
 import { AppError } from "../utils/AppError.js";
+import { requireWorkspaceRole } from "../utils/permissions.js";
 
-import type { CreateWorkspaceInput } from "../schema/workspace.schema.js";
+import type { CreateWorkspaceInput,InviteMemberInput } from "../schema/workspace.schema.js";
 
 export const createWorkspace=async(userId:string,data:CreateWorkspaceInput)=>{
     const existing=await prisma.workspace.findUnique({
@@ -106,4 +107,89 @@ export const getWorkspaceBySlug = async (
   }
 
   return workspace;
+};
+
+export const inviteMember=async(workspaceId:string,requesterId:string,data:InviteMemberInput)=>{
+  await requireWorkspaceRole(workspaceId,requesterId,["OWNER","MEMBER"]);
+
+  const targetUser=await prisma.user.findUnique({
+    where:{
+      email:data.email,
+    },
+  });
+
+  if(!targetUser){
+    throw new AppError("User with this email does not exist",404);
+  }
+
+  const existingMembership =
+    await prisma.workspaceMember.findUnique({
+      where: {
+        userId_workspaceId: {
+          userId: targetUser.id,
+          workspaceId,
+        },
+      },
+    });
+
+  if(existingMembership){
+    throw new AppError("User is already a member of this workspace",409);
+  }
+
+  const membership=await prisma.workspaceMember.create({
+    data:{
+      userId:targetUser.id,
+      workspaceId,
+      role:data.role??"MEMBER",
+    },
+    include:{
+      user:{
+        select:{
+          id:true,
+          name:true,
+          email:true,
+          avatarUrl:true,
+        },
+      },
+    },
+  });
+
+  return membership;
+};
+
+
+export const removeMember=async(workspaceId:string,requesterId:string,targetUserId:string)=>{
+  await requireWorkspaceRole(
+    workspaceId,requesterId,["OWNER"],
+  );
+
+  if(requesterId==targetUserId){
+    throw new AppError("You cannot remove yourself from the workspace",400);
+  }
+
+  const membership=await prisma.workspaceMember.findUnique({
+    where:{
+      userId_workspaceId:{
+        userId:targetUserId,
+        workspaceId,
+      },
+    },
+  });
+
+  if(!membership){
+    throw new AppError("User is not a member of this workspace",404);
+  }
+
+  await prisma.workspaceMember.delete({
+    where:{
+      userId_workspaceId:{
+        userId:targetUserId,
+        workspaceId,
+      },
+    },
+  });
+
+  return {
+    message:"Member removed successfully",
+  };
 };
