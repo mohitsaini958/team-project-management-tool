@@ -17,5 +17,12 @@ export const createWorkspaceSchema = z.object({
     }),
 });
 
+export const inviteMemberSchema=z.object({
+  email:z.email("Invalid email address"),
+  role:z.enum(["MEMBER","VIEWER"]).default("MEMBER")
+});
+
+export type InviteMemberInput=z.infer<typeof inviteMemberSchema>;
+
 export type CreateWorkspaceInput =
   z.infer<typeof createWorkspaceSchema>;

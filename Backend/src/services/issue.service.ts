@@ -7,6 +7,7 @@ import type {
 import { AppError } from "../utils/AppError.js";
 import { requireWorkspaceRole } from "../utils/permissions.js";
 import { logActivity } from "./activity.service.js";
+import { createNotification } from "./notification.service.js";
 
 export const createIssue = async (userId: string, data: CreateIssueInput) => {
   const project = await prisma.project.findUnique({
@@ -108,6 +109,16 @@ export const updateIssue = async (
     },
     data: updateData,
   });
+
+  if(data.assigneeId !==undefined && data.assigneeId !== issue.assigneeId){
+    if(data.assigneeId!==null){
+    await createNotification({
+      userId:data.assigneeId,
+      type:"ISSUE_ASSIGNED",
+      message: `You were assigned to issue "${updated.title}"`,
+      issueId: updated.id,
+    })}
+  }
 
   if (issue.status !== updated.status) {
     await logActivity({

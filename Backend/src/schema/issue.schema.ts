@@ -15,12 +15,45 @@ export const createIssueSchema = z.object({
 });
 
 export const updateIssueSchema = z.object({
-  title: z.string().trim().min(3).max(200).optional(),
-  description: z.string().optional(),
-  priority: z.enum(["LOW", "MEDIUM", "HIGH", "URGENT"]).optional(),
+  title: z
+    .string()
+    .trim()
+    .min(3)
+    .max(200)
+    .optional(),
 
-  status: z.enum(["BACKLOG", "IN_PROGRESS", "IN_REVIEW", "DONE"]).optional(),
+  description: z
+    .string()
+    .trim()
+    .max(2000)
+    .optional(),
+
+  priority: z
+    .enum(["LOW", "MEDIUM", "HIGH", "URGENT"])
+    .optional(),
+
+  status: z
+    .enum([
+      "BACKLOG",
+      "IN_PROGRESS",
+      "IN_REVIEW",
+      "DONE",
+    ])
+    .optional(),
+
+  assigneeId: z
+    .string()
+    .cuid()
+    .nullable()
+    .optional(),
+
+  order: z
+    .number()
+    .int()
+    .min(0)
+    .optional(),
 });
+
 
 export const reorderIssueSchema = z.object({
   issues: z
