@@ -2,6 +2,7 @@ import { useState, FormEvent } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { X } from 'lucide-react';
 import * as issueService from '../../services/issue.service';
+import { useCurrentRole } from '../../hooks/useCurrentRole';
 import type { IssueStatus, IssuePriority } from '../../types';
 import ActivityLog from './ActivityLog';
 
@@ -16,6 +17,8 @@ interface IssuePanelProps {
 
 export default function IssuePanel({ issueId, projectId, onClose }: IssuePanelProps) {
   const queryClient = useQueryClient();
+  const currentRole = useCurrentRole();
+  const canEdit = currentRole === 'OWNER' || currentRole === 'MEMBER';
   const [description, setDescription] = useState<string | null>(null);
   const [commentText, setCommentText] = useState('');
 
@@ -84,7 +87,8 @@ export default function IssuePanel({ issueId, projectId, onClose }: IssuePanelPr
             <select
               value={issue.status}
               onChange={(e) => updateMutation.mutate({ status: e.target.value as IssueStatus })}
-              className="w-full bg-[#12161d] border border-[#242b37] text-[#e8eaef] text-[13px] rounded-md px-2.5 py-1.5 focus:outline-none focus:border-[#4ddac2]"
+              disabled={!canEdit}
+              className="w-full bg-[#12161d] border border-[#242b37] text-[#e8eaef] text-[13px] rounded-md px-2.5 py-1.5 focus:outline-none focus:border-[#4ddac2] disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {STATUS_OPTIONS.map((s) => (
                 <option key={s} value={s}>{s.replace('_', ' ')}</option>
@@ -97,7 +101,8 @@ export default function IssuePanel({ issueId, projectId, onClose }: IssuePanelPr
             <select
               value={issue.priority}
               onChange={(e) => updateMutation.mutate({ priority: e.target.value as IssuePriority })}
-              className="w-full bg-[#12161d] border border-[#242b37] text-[#e8eaef] text-[13px] rounded-md px-2.5 py-1.5 focus:outline-none focus:border-[#4ddac2]"
+              disabled={!canEdit}
+              className="w-full bg-[#12161d] border border-[#242b37] text-[#e8eaef] text-[13px] rounded-md px-2.5 py-1.5 focus:outline-none focus:border-[#4ddac2] disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {PRIORITY_OPTIONS.map((p) => (
                 <option key={p} value={p}>{p}</option>
@@ -112,13 +117,14 @@ export default function IssuePanel({ issueId, projectId, onClose }: IssuePanelPr
             value={currentDescription}
             onChange={(e) => setDescription(e.target.value)}
             onBlur={() => {
-              if (currentDescription !== (issue.description ?? '')) {
+              if (canEdit && currentDescription !== (issue.description ?? '')) {
                 updateMutation.mutate({ description: currentDescription });
               }
             }}
+            disabled={!canEdit}
             placeholder="Add a description..."
             rows={4}
-            className="w-full bg-[#12161d] border border-[#242b37] text-[#e8eaef] text-[13px] rounded-md px-3 py-2 placeholder:text-[#565f6f] focus:outline-none focus:border-[#4ddac2] resize-none"
+            className="w-full bg-[#12161d] border border-[#242b37] text-[#e8eaef] text-[13px] rounded-md px-3 py-2 placeholder:text-[#565f6f] focus:outline-none focus:border-[#4ddac2] resize-none disabled:opacity-50 disabled:cursor-not-allowed"
           />
         </div>
 
@@ -154,6 +160,7 @@ export default function IssuePanel({ issueId, projectId, onClose }: IssuePanelPr
             )}
           </div>
 
+          {canEdit && (
           <form onSubmit={handleCommentSubmit} className="flex gap-2">
             <input
               value={commentText}
@@ -169,6 +176,7 @@ export default function IssuePanel({ issueId, projectId, onClose }: IssuePanelPr
               Post
             </button>
           </form>
+          )}
         </div>
 
         <ActivityLog entries={issue.activityLogs} />
