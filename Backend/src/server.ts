@@ -11,10 +11,15 @@ import workspaceRoutes from "./routes/workspace.routes.js"
 import issueRoutes from "./routes/issue.routes.js"
 import commentRoutes from "./routes/comment.routes.js"
 import notificationRoutes from "./routes/notification.routes.js"
+import {webhook} from "./controllers/stripe.controller.js"
+import stripeRoutes from "./routes/stripe.routes.js";
 
 const app=express();
 
-app.use(cors())
+app.use(cors());
+
+app.use("/api/v1/stripe",stripeRoutes);
+
 app.use(express.json());
 
 app.get("/health",(req,res)=>{

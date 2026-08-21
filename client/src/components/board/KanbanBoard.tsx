@@ -22,13 +22,20 @@ interface KanbanBoardProps {
   issues: Issue[];
   onIssueClick: (issue: Issue) => void;
   onIssuesChange: (issues: Issue[]) => void;
+  canEdit: boolean;
 }
 
-export default function KanbanBoard({ issues, onIssueClick, onIssuesChange }: KanbanBoardProps) {
+export default function KanbanBoard({ issues, onIssueClick, onIssuesChange, canEdit }: KanbanBoardProps) {
   const [activeIssue, setActiveIssue] = useState<Issue | null>(null);
 
+  // Disabled entirely for VIEWER — activationConstraint set to an
+  // effectively-unreachable distance means the sensor never fires,
+  // so drag can't start at all rather than starting and then failing
+  // to persist.
   const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: canEdit ? 5 : Infinity },
+    })
   );
 
   const getColumnIssues = (status: IssueStatus) =>
@@ -117,6 +124,7 @@ export default function KanbanBoard({ issues, onIssueClick, onIssuesChange }: Ka
             column={column}
             issues={getColumnIssues(column.id)}
             onIssueClick={onIssueClick}
+            canEdit={canEdit}
           />
         ))}
       </div>

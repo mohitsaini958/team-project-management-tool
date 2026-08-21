@@ -6,6 +6,7 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
 import BoardPage from './pages/BoardPage';
+import SettingsPage from './pages/SettingsPage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -78,6 +79,15 @@ export default function App() {
               element={
                 <ProtectedRoute>
                   <BoardPage />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/workspace/:slug/settings"
+              element={
+                <ProtectedRoute>
+                  <SettingsPage />
                 </ProtectedRoute>
               }
             />

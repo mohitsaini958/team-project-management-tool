@@ -13,9 +13,10 @@ interface KanbanColumnProps {
   column: Column;
   issues: Issue[];
   onIssueClick: (issue: Issue) => void;
+  canEdit: boolean;
 }
 
-export default function KanbanColumn({ column, issues, onIssueClick }: KanbanColumnProps) {
+export default function KanbanColumn({ column, issues, onIssueClick, canEdit }: KanbanColumnProps) {
   const { setNodeRef, isOver } = useDroppable({ id: column.id });
 
   return (
@@ -40,7 +41,12 @@ export default function KanbanColumn({ column, issues, onIssueClick }: KanbanCol
               <p className="text-[12px] text-[#565f6f] px-2 py-3 text-center">No issues</p>
             )}
             {issues.map((issue) => (
-              <IssueCard key={issue.id} issue={issue} onClick={() => onIssueClick(issue)} />
+              <IssueCard
+                key={issue.id}
+                issue={issue}
+                onClick={() => onIssueClick(issue)}
+                canEdit={canEdit}
+              />
             ))}
           </div>
         </SortableContext>

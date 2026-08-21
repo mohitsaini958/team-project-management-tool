@@ -12,9 +12,10 @@ const PRIORITY_COLOR: Record<string, string> = {
 interface IssueCardProps {
   issue: Issue;
   onClick: () => void;
+  canEdit: boolean;
 }
 
-export default function IssueCard({ issue, onClick }: IssueCardProps) {
+export default function IssueCard({ issue, onClick, canEdit }: IssueCardProps) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: issue.id });
 
@@ -28,10 +29,15 @@ export default function IssueCard({ issue, onClick }: IssueCardProps) {
     <div
       ref={setNodeRef}
       style={style}
-      {...attributes}
-      {...listeners}
+      // Drag attributes/listeners only spread for editors — a VIEWER
+      // can still click to open the panel, but the card never becomes
+      // draggable, so there's no drag-then-silently-fail UX.
+      {...(canEdit ? attributes : {})}
+      {...(canEdit ? listeners : {})}
       onClick={onClick}
-      className="bg-[#181d26] border border-[#242b37] hover:border-[#2f3947] rounded-md p-3 cursor-pointer transition-colors"
+      className={`bg-[#181d26] border border-[#242b37] hover:border-[#2f3947] rounded-md p-3 cursor-pointer transition-colors ${
+        canEdit ? '' : 'cursor-default'
+      }`}
     >
       <p className="text-[13px] font-medium leading-snug text-[#e8eaef] mb-2">
         {issue.title}

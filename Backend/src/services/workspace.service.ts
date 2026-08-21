@@ -5,6 +5,32 @@ import { requireWorkspaceRole } from "../utils/permissions.js";
 import type { CreateWorkspaceInput,InviteMemberInput } from "../schema/workspace.schema.js";
 
 export const createWorkspace=async(userId:string,data:CreateWorkspaceInput)=>{
+
+    const user=await prisma.user.findUnique({
+      where:{
+        id:userId,
+      },
+      select:{
+        subscriptionStatus:true,
+      }
+    });
+
+    if(!user){
+      throw new AppError("User not found",404);
+    }
+
+    if(user.subscriptionStatus=="TRIAL"){
+      const workspaceCount=await prisma.workspace.count({
+        where:{
+          ownerId:userId,
+        },
+      });
+
+      if(workspaceCount>=1){
+        throw new AppError("Free users can only create one workspace. Upgrade your subsciption to create more.",403);
+      }
+    }
+
     const existing=await prisma.workspace.findUnique({
         where:{
             slug:data.slug,

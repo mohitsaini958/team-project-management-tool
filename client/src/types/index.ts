@@ -90,3 +90,19 @@ export interface IssueDetail extends Issue {
   comments: Comment[];
   activityLogs: ActivityLogEntry[];
 }
+export type NotificationType =
+  | 'INVITATION'
+  | 'ISSUE_ASSIGNED'
+  | 'ISSUE_UPDATED'
+  | 'COMMENT_ADDED'
+  | 'PROJECT_UPDATE';
+
+export interface AppNotification {
+  id: string;
+  type: NotificationType;
+  message: string;
+  readAt: string | null;
+  userId: string;
+  issueId: string | null;
+  createdAt: string;
+}
